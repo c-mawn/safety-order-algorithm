@@ -17,16 +17,21 @@
 
 ### Constraints
 Only one role per person per row
+
 $$P_{or} + \sum_{c=1}^{5}s_{orc} + m_{or} \le 1, \forall \ r \in R, \forall \ o \in O$$
 
 Can't safety right before or after your performance
+
 $$P_{or} \left( \sum_{c=1}^{5} \left( S_{o(r-1)c} + S_{o(r+1)c} \right) \right) = 0, \forall \ r \in R, \forall \ o \in O$$
 
 Experienced safeties in slots 1 and 4
+
 $$S_{or1} \le E_{o}, \forall \ r \in R, \forall \ o \in O$$
+
 $$S_{or4} \le E_{o}, \forall \ r \in R, \forall \ o \in O$$
 
 At least two safeties must stay the same between performances 
+
 $$\sum_{o=1}^{O} \sum_{c=1}^{C} S_{orc} * S_{o(r+1)c} \ge 2, \forall \ r \in R$$
 
 ### Optimization
