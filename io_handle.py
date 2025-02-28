@@ -18,8 +18,7 @@ def get_groups(filepath, keep_empty_slots=False):
             performer slots.
 
     Returns:
-        groups: list of lists containing each performer group, in no particular
-            order.
+        groups: list of lists containing each performer group
     """
     groups = []
     with open(filepath, "r") as f:
@@ -30,3 +29,18 @@ def get_groups(filepath, keep_empty_slots=False):
                     row.remove("")
             groups.append(row)
     return groups
+
+
+def make_safety_csv(safeties, filepath="output.csv"):
+    """
+    Given a list of lists containing all the safeties in order,
+    outputs a csv file containing that information
+
+    Args:
+        Safeties: list of lists containing the safeties in their slots
+        filepath: default to "output.csv", names the file that is created
+            by the output of the function
+    """
+    with open(filepath, "w") as f:
+        writer = csv.writer(f)
+        writer.writerows(safeties)
