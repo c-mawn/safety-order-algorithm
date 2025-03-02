@@ -1,14 +1,38 @@
 import numpy as np
 from numpy.typing import NDArray
 
-c = np.array([8, 10, 7])
-A = np.array([[1, 3, 2], [1, 5, 1]])
-b = np.array([10, 8])
+# c = np.array([8, 10, 7])
+# # fmt: off
+# A = np.array([
+#     [1, 3, 2],
+#     [1, 5, 1]
+# ])
+# b = np.array([10, 8])
 
 # c = np.array([1, 2])
-# A = np.array([[1, 3], [1, 1]])
+# # fmt: off
+# A = np.array([
+#     [1, 3],
+#     [1, 1],
+# ])
 # b = np.array([8, 4])
 
+# no valid solution
+# c = np.array([1, 1])
+# # fmt: off
+# A = np.array([
+#     [1, 1],
+#     [-2, -1],
+# ])
+# b = np.array([2, -5])
+
+# unbounded
+c = np.array([3, 2])
+# fmt: off
+A = np.array([
+    [1, -1],
+])
+b = np.array([4])
 
 def construct_tableau(c: NDArray, A: NDArray, b: NDArray) -> NDArray:
     center = np.vstack((A, c * -1))
@@ -59,7 +83,6 @@ def get_solution_point(tableau: NDArray) -> NDArray:
 def simplex(c: NDArray, A: NDArray, b: NDArray):
     tableau = construct_tableau(c, A, b)
     while not all(tableau[-1, : A.shape[1]] >= 0):
-        # print(tableau)
         pivot = select_pivot(tableau)
         tableau = row_reduce_by_pivot(tableau, pivot)
     print(tableau)
