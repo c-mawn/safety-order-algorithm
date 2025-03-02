@@ -1,3 +1,7 @@
+"""
+Linear programming solver via simplex algorithm
+"""
+
 import numpy as np
 from numpy.typing import NDArray
 
@@ -16,6 +20,9 @@ class SimplexSolver:
 
     @staticmethod
     def example(example_number: int):
+        """
+        Returns a [SimplexSolver] with a sample A, b, and c
+        """
         match example_number:
             case 1:
                 # In class example
@@ -42,6 +49,9 @@ class SimplexSolver:
         return SimplexSolver(c, A, b)
 
     def construct_tableau(self):
+        """
+        Sets `self.tableau` to the initial tableau based on the given A, b, and c
+        """
         center = np.vstack((self.A, self.c * -1))
         identity_stack = np.vstack(
             (
@@ -53,11 +63,19 @@ class SimplexSolver:
         self.tableau = np.hstack((center, identity_stack, b_col))
 
     def select_pivot(self) -> tuple[int, int]:
+        """
+        Returns the pivot point for the current tableau
+        """
         pivot_col = np.argmin(self.tableau[-1, :-1])
         pivot_row = np.argmin(self.tableau[:-1, -1] / self.tableau[:-1, pivot_col])
         return pivot_row, pivot_col
 
     def row_reduce_by_pivot(self, pivot: tuple[int, int]) -> NDArray:
+        """
+        Updates the current tableau via row reduction, reducing the pivot row
+        such that the pivot is equal to 1, and reducing other rows such that
+        the value in the pivot column is 0
+        """
         pivot_row, pivot_col = pivot
 
         # row reduce so pivot = 1
@@ -71,6 +89,11 @@ class SimplexSolver:
             )
 
     def solution_point(self) -> NDArray:
+        """
+        Returns a numpy array containing the values of the variables and slack
+        variables. Does so by finding the columns that are all zeros except for
+        one 1
+        """
         point = np.zeros(self.tableau.shape[1] - 1)
         for col_idx in range(len(point)):
             col = self.tableau[:, col_idx]
@@ -82,6 +105,10 @@ class SimplexSolver:
         return point
 
     def solve(self):
+        """
+        Solve via the simplex algorithm, pivoting until all values in the
+        objective row are non-negative
+        """
         self.construct_tableau()
         while not all(self.tableau[-1, : self.A.shape[1]] >= 0):
             pivot = self.select_pivot()
