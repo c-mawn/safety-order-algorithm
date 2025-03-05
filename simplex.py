@@ -44,6 +44,16 @@ class SimplexSolver:
                 c = np.array([3, 2])
                 A = np.array([[1, -1]])
                 b = np.array([4])
+            case 5:
+                # Binary example, Maya Backpack
+                c = np.array([6, 12, 4, 8, 10])
+                A = np.vstack(
+                    (
+                        np.array([[2, 4, 10, 5, 9]]),
+                        np.eye(5),
+                    )
+                )
+                b = np.array([15, 1, 1, 1, 1, 1])
             case _:
                 raise ValueError("No example at that number")
         return SimplexSolver(c, A, b)
@@ -115,7 +125,7 @@ class SimplexSolver:
             self.row_reduce_by_pivot(pivot)
 
 
-s = SimplexSolver.example(1)
+s = SimplexSolver.example(5)
 s.solve()
 print(s.tableau)
 print(s.solution_point())
