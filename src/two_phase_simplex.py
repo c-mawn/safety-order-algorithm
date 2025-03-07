@@ -47,10 +47,10 @@ class TwoPhaseSimplex:
                 return TwoPhaseSimplex(
                     {"x1": 1, "x2": 1},
                     [
-                        LPConstraint({"x1": 1, "x2": 1}, ConstraintType.LESS_THAN, 2),
                         LPConstraint(
-                            {"x1": -2, "x2": -1}, ConstraintType.LESS_THAN, -5
+                            {"x1": 1, "x2": 1}, ConstraintType.GREATER_THAN, 5
                         ),
+                        LPConstraint({"x1": 1, "x2": 1}, ConstraintType.LESS_THAN, 2),
                     ],
                 )
             case 4:
@@ -288,6 +288,11 @@ class TwoPhaseSimplex:
         while self.has_basic_artificial_variable():
             pivot = self.select_pivot()
             self.row_reduce_by_pivot(pivot)
+            if all(self.tableau[-1, :-1] >= 0):
+                # If bottom row values are all non-negative and artificial
+                # variables are still basic, the solution is infeasible
+                raise ValueError("Infeasible solution")
+
         self.update_tableau_for_second_phase()
         self.solve_single_phase()
 
