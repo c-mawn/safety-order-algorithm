@@ -127,12 +127,5 @@ class SimplexSolver:
         """
         self.construct_tableau()
         while not all(self.tableau[-1, : self.A.shape[1]] >= 0):
-            print(self.tableau)
             pivot = self.select_pivot()
             self.row_reduce_by_pivot(pivot)
-
-
-# s = SimplexSolver.example(4)
-# s.solve()
-# print(s.tableau)
-# print(s.solution_point())
