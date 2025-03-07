@@ -1,3 +1,7 @@
+"""
+Linear programming solver via simplex algorithm, using the two-phase method.
+"""
+
 import numpy as np
 from numpy.typing import NDArray
 from typing import Dict, List
