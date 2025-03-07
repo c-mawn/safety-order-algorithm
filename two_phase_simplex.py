@@ -13,6 +13,9 @@ class TwoPhaseSimplex:
         self.variable_column_map: Dict[str, int] = {}
         self.has_artificial_variables = False
 
+    # ============================ Initialization ============================
+    # region Initialization
+
     def standardize_constraints(self):
         # Convert all to standard form
         for idx, constraint in enumerate(self.constraints):
@@ -42,6 +45,11 @@ class TwoPhaseSimplex:
             ):
                 self.has_artificial_variables = True
             self.variable_column_map[var] = idx
+
+    # endregion
+
+    # ========================= Tableau Construction =========================
+    # region Tableau Construction
 
     def add_constraints_to_tableau(self):
         """
@@ -105,6 +113,11 @@ class TwoPhaseSimplex:
             # If no artificial variables, single phase
             self.add_single_phase_objective()
 
+    # endregion
+
+    # =============================== Pivoting ===============================
+    # region Pivoting
+
     def select_pivot(self) -> tuple[int, int]:
         """
         Returns the pivot point for the current tableau
@@ -144,6 +157,11 @@ class TwoPhaseSimplex:
             self.tableau[active_row, pivot_col] * self.tableau[pivot_row, :]
         )
 
+    # endregion
+
+    # ================================ Helpers ================================
+    # region Helpers
+
     def column_is_basic(self, col_idx: int) -> bool:
         col = self.tableau[:, col_idx]
         return np.count_nonzero(col) == 1 and sum(col) == 1
@@ -156,19 +174,10 @@ class TwoPhaseSimplex:
                 return True
         return False
 
-    def solve_single_phase(self):
-        # Count of non-slack variables, there should be no artificial variables
-        # at this point
-        num_decision_vars = len(
-            [
-                var
-                for var in self.variable_column_map.keys()
-                if not var.startswith(LPConstraint.SLACK_VAR_TAG)
-            ]
-        )
-        while not all(self.tableau[-1, :num_decision_vars] >= 0):
-            pivot = self.select_pivot()
-            self.row_reduce_by_pivot(pivot)
+    # endregion
+
+    # ================================= Solve =================================
+    # region Solve
 
     def update_tableau_for_second_phase(self):
         # Delete artificial columns
@@ -192,6 +201,20 @@ class TwoPhaseSimplex:
             row_idx = np.where(self.tableau[:, col_idx] == 1)[0][0]
             self.row_elimination(-1, row_idx, col_idx)
 
+    def solve_single_phase(self):
+        # Count of non-slack variables, there should be no artificial variables
+        # at this point
+        num_decision_vars = len(
+            [
+                var
+                for var in self.variable_column_map.keys()
+                if not var.startswith(LPConstraint.SLACK_VAR_TAG)
+            ]
+        )
+        while not all(self.tableau[-1, :num_decision_vars] >= 0):
+            pivot = self.select_pivot()
+            self.row_reduce_by_pivot(pivot)
+
     def solve_two_phase(self):
         while self.has_basic_artificial_variable():
             pivot = self.select_pivot()
@@ -207,3 +230,5 @@ class TwoPhaseSimplex:
             self.solve_two_phase()
         else:
             self.solve_single_phase()
+
+    # endregion
