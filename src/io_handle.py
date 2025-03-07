@@ -18,9 +18,12 @@ def get_groups(filepath, keep_empty_slots=False):
             performer slots.
 
     Returns:
-        groups: list of lists containing each performer group
+        groups: list of lists containing each performer group, where each
+            list's final element is the music master for the performance
+
     """
     groups = []
+
     with open(filepath, "r") as f:
         reader = csv.reader(f)
         for row in reader:
