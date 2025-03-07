@@ -1,57 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
-from enum import Enum
 from typing import Dict, List
-
-ARTIFICIAL_VAR_TAG = "ARTIFICIAL"
-SLACK_VAR_TAG = "SLACK"
-
-
-class ConstraintType(Enum):
-    LESS_THAN = 0
-    EQUAL = 1
-    GREATER_THAN = 2
-
-
-class LPConstraint:
-    """
-    Example: 2x + 3y <= 5
-        coef_map = {x: 2, y: 3}
-        ctype = LESS_THAN
-        rhs = 5
-    """
-
-    def __init__(self, coef_map: Dict[str, int], ctype: ConstraintType, rhs: float):
-        self.coef_map = coef_map
-        self.ctype = ctype
-        self.rhs = rhs
-
-    def __repr__(self):
-        match self.ctype:
-            case ConstraintType.LESS_THAN:
-                operator = "<="
-            case ConstraintType.GREATER_THAN:
-                operator = ">="
-            case ConstraintType.EQUAL:
-                operator = "=="
-        return (
-            " + ".join([f"{coef}{var}" for var, coef in self.coef_map.items()])
-            + f" {operator} {str(self.rhs)}"
-        )
-
-    def convert_to_standard_form(self, constraint_idx: int):
-        match self.ctype:
-            case ConstraintType.LESS_THAN:
-                # Add slack variable
-                self.coef_map[f"{SLACK_VAR_TAG}_{constraint_idx}"] = 1
-            case ConstraintType.GREATER_THAN:
-                # Subtract slack variable and add artificial variable
-                self.coef_map[f"{SLACK_VAR_TAG}_{constraint_idx}"] = -1
-                self.coef_map[f"{ARTIFICIAL_VAR_TAG}_{constraint_idx}"] = 1
-            case ConstraintType.EQUAL:
-                # Add artificial variable
-                self.coef_map[f"{ARTIFICIAL_VAR_TAG}_{constraint_idx}"] = 1
-        self.ctype = ConstraintType.EQUAL
+from lp_constraint import LPConstraint
 
 
 class TwoPhaseSimplex:
@@ -71,9 +21,9 @@ class TwoPhaseSimplex:
     def init_variable_column_map(self):
         # Init variable column map with sorted variables
         def variable_sort(var: str):
-            if var.startswith(ARTIFICIAL_VAR_TAG):
+            if var.startswith(LPConstraint.ARTIFICIAL_VAR_TAG):
                 return (2, var)
-            elif var.startswith(SLACK_VAR_TAG):
+            elif var.startswith(LPConstraint.SLACK_VAR_TAG):
                 return (1, var)
             else:
                 return (0, var)
@@ -86,7 +36,10 @@ class TwoPhaseSimplex:
         # Sort and insert into variable column map
         for idx, var in enumerate(sorted(variables, key=variable_sort)):
             # Check for artificial variables
-            if var.startswith(ARTIFICIAL_VAR_TAG) and not self.has_artificial_variables:
+            if (
+                var.startswith(LPConstraint.ARTIFICIAL_VAR_TAG)
+                and not self.has_artificial_variables
+            ):
                 self.has_artificial_variables = True
             self.variable_column_map[var] = idx
 
@@ -119,7 +72,7 @@ class TwoPhaseSimplex:
         artificial_variables = [
             var
             for var in self.variable_column_map.keys()
-            if var.startswith(ARTIFICIAL_VAR_TAG)
+            if var.startswith(LPConstraint.ARTIFICIAL_VAR_TAG)
         ]
 
         # Add objective function as last row, objective function is artificial
@@ -197,7 +150,7 @@ class TwoPhaseSimplex:
 
     def has_basic_artificial_variable(self) -> bool:
         for var in self.variable_column_map.keys():
-            if var.startswith(ARTIFICIAL_VAR_TAG) and self.column_is_basic(
+            if var.startswith(LPConstraint.ARTIFICIAL_VAR_TAG) and self.column_is_basic(
                 self.variable_column_map[var]
             ):
                 return True
@@ -210,7 +163,7 @@ class TwoPhaseSimplex:
             [
                 var
                 for var in self.variable_column_map.keys()
-                if not var.startswith(SLACK_VAR_TAG)
+                if not var.startswith(LPConstraint.SLACK_VAR_TAG)
             ]
         )
         while not all(self.tableau[-1, :num_decision_vars] >= 0):
@@ -222,7 +175,7 @@ class TwoPhaseSimplex:
         artificial_cols = [
             self.variable_column_map[var]
             for var in self.variable_column_map.keys()
-            if var.startswith(ARTIFICIAL_VAR_TAG)
+            if var.startswith(LPConstraint.ARTIFICIAL_VAR_TAG)
         ]
         self.tableau = np.delete(self.tableau, artificial_cols, axis=1)
 
@@ -254,38 +207,3 @@ class TwoPhaseSimplex:
             self.solve_two_phase()
         else:
             self.solve_single_phase()
-
-
-c1 = LPConstraint(
-    {
-        "x_1": -1,
-        "x_2": 3,
-    },
-    ConstraintType.LESS_THAN,
-    6,
-)
-c2 = LPConstraint(
-    {
-        "x_1": 1,
-        "x_2": -3,
-    },
-    ConstraintType.EQUAL,
-    6,
-)
-c3 = LPConstraint(
-    {
-        "x_1": 1,
-        "x_2": 1,
-    },
-    ConstraintType.GREATER_THAN,
-    1,
-)
-q = TwoPhaseSimplex(
-    {
-        "x_1": 6,
-        "x_2": 1,
-    },
-    [c1, c2, c3],
-)
-
-q.solve()
