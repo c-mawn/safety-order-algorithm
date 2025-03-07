@@ -77,7 +77,13 @@ class SimplexSolver:
         Returns the pivot point for the current tableau
         """
         pivot_col = np.argmin(self.tableau[-1, :-1])
-        pivot_row = np.argmin(self.tableau[:-1, -1] / self.tableau[:-1, pivot_col])
+
+        # Value greater than zero with the smallest ratio selected as pivot
+        ratio_col = self.tableau[:-1, -1] / self.tableau[:-1, pivot_col]
+        feasible_pivots = ratio_col[ratio_col > 0]
+        if len(feasible_pivots) == 0:
+            raise ValueError("No feasible pivots")
+        pivot_row = np.where(ratio_col == min(feasible_pivots))[0][0]
         return pivot_row, pivot_col
 
     def row_reduce_by_pivot(self, pivot: tuple[int, int]) -> NDArray:
@@ -121,11 +127,12 @@ class SimplexSolver:
         """
         self.construct_tableau()
         while not all(self.tableau[-1, : self.A.shape[1]] >= 0):
+            print(self.tableau)
             pivot = self.select_pivot()
             self.row_reduce_by_pivot(pivot)
 
 
-s = SimplexSolver.example(5)
-s.solve()
-print(s.tableau)
-print(s.solution_point())
+# s = SimplexSolver.example(4)
+# s.solve()
+# print(s.tableau)
+# print(s.solution_point())
