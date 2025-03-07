@@ -1,6 +1,6 @@
 import numpy as np
 import io_handle
-import two_phase_simplex
+from lp_constraint import LPConstraint, ConstraintType
 
 # define o as list of performers
 # define r as rows of performances
@@ -65,9 +65,7 @@ for row in r:
         con_dict = {}
         for ofacer in o:
             con_dict.update({f"S_{row}-{col}-{ofacer}": 1})
-        con = two_phase_simplex.LPConstraint(
-            con_dict, two_phase_simplex.ConstraintType.EQUAL, 1
-        )
+        con = LPConstraint(con_dict, ConstraintType.EQUAL, 1)
         constraint_list_1.append(con)
 print(constraint_list_1)
 
@@ -84,9 +82,7 @@ for row in r:
             con_dict.update({f"S_{row}-{ofacer}-{col}": 1})
         con_dict.update({f"P_{row}-{ofacer}": p_or})
         con_dict.update({f"m_{row}-{ofacer}": m_or})
-        con = two_phase_simplex.LPConstraint(
-            con_dict, two_phase_simplex.ConstraintType.LESS_THAN, 1
-        )
+        con = LPConstraint(con_dict, ConstraintType.LESS_THAN, 1)
         constraint_list_2.append(con)
 print(constraint_list_2)
 
@@ -109,8 +105,6 @@ for row in r:
                     con_dict.update(
                         {f"S_{ofacer}-{row-1}-{col}": 1, f"S_{ofacer}-{row+1}-{col}": 1}
                     )
-                con = two_phase_simplex.LPConstraint(
-                    con_dict, two_phase_simplex.ConstraintType.EQUAL, 0
-                )
+                con = LPConstraint(con_dict, ConstraintType.EQUAL, 0)
                 constraint_list_3.append(con)
 print(constraint_list_3)
