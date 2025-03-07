@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
 from typing import Dict, List
-from lp_constraint import LPConstraint
+from lp_constraint import LPConstraint, ConstraintType
 
 
 class TwoPhaseSimplex:
@@ -12,6 +12,72 @@ class TwoPhaseSimplex:
         self.tableau: NDArray = None
         self.variable_column_map: Dict[str, int] = {}
         self.has_artificial_variables = False
+
+    @staticmethod
+    def example(example_number: int):
+        match example_number:
+            case 1:
+                # In class example
+                return TwoPhaseSimplex(
+                    {"x1": 8, "x2": 10, "x3": 7},
+                    [
+                        LPConstraint(
+                            {"x1": 1, "x2": 3, "x3": 2},
+                            ConstraintType.LESS_THAN,
+                            10,
+                        ),
+                        LPConstraint(
+                            {"x1": 1, "x2": 5, "x3": 1},
+                            ConstraintType.LESS_THAN,
+                            8,
+                        ),
+                    ],
+                )
+            case 2:
+                # Homework 1
+                return TwoPhaseSimplex(
+                    {"x1": 1, "x2": 2},
+                    [
+                        LPConstraint({"x1": 1, "x2": 3}, ConstraintType.LESS_THAN, 8),
+                        LPConstraint({"x1": 1, "x2": 1}, ConstraintType.LESS_THAN, 4),
+                    ],
+                )
+            case 3:
+                # No valid solution
+                return TwoPhaseSimplex(
+                    {"x1": 1, "x2": 1},
+                    [
+                        LPConstraint({"x1": 1, "x2": 1}, ConstraintType.LESS_THAN, 2),
+                        LPConstraint(
+                            {"x1": -2, "x2": -1}, ConstraintType.LESS_THAN, -5
+                        ),
+                    ],
+                )
+            case 4:
+                # Unbounded
+                return TwoPhaseSimplex(
+                    {"x1": 3, "x2": 2},
+                    [
+                        LPConstraint({"x1": 1, "x2": -1}, ConstraintType.LESS_THAN, 4),
+                    ],
+                )
+            case 5:
+                # Binary example, Maya Backpack
+                return TwoPhaseSimplex(
+                    {"x1": 6, "x2": 12, "x3": 4, "x4": 8, "x5": 10},
+                    [
+                        LPConstraint(
+                            {"x1": 2, "x2": 4, "x3": 10, "x4": 5, "x5": 9},
+                            ConstraintType.LESS_THAN,
+                            15,
+                        ),
+                        LPConstraint({"x1": 1}, ConstraintType.LESS_THAN, 1),
+                        LPConstraint({"x2": 1}, ConstraintType.LESS_THAN, 1),
+                        LPConstraint({"x3": 1}, ConstraintType.LESS_THAN, 1),
+                        LPConstraint({"x4": 1}, ConstraintType.LESS_THAN, 1),
+                        LPConstraint({"x5": 1}, ConstraintType.LESS_THAN, 1),
+                    ],
+                )
 
     # ============================ Initialization ============================
     # region Initialization
@@ -100,7 +166,7 @@ class TwoPhaseSimplex:
     def add_single_phase_objective(self):
         obj_row = np.zeros(len(self.variable_column_map) + 1)
         for var, coef in self.objective.items():
-            obj_row[self.variable_column_map[var]] = coef
+            obj_row[self.variable_column_map[var]] = -coef
         self.tableau = np.vstack((self.tableau, obj_row))
 
     def construct_tableau(self):
@@ -174,6 +240,15 @@ class TwoPhaseSimplex:
                 return True
         return False
 
+    def decision_vars(self) -> List[str]:
+        return [
+            var
+            for var in self.variable_column_map.keys()
+            if not var.startswith(
+                (LPConstraint.ARTIFICIAL_VAR_TAG, LPConstraint.SLACK_VAR_TAG)
+            )
+        ]
+
     # endregion
 
     # ================================= Solve =================================
@@ -204,13 +279,7 @@ class TwoPhaseSimplex:
     def solve_single_phase(self):
         # Count of non-slack variables, there should be no artificial variables
         # at this point
-        num_decision_vars = len(
-            [
-                var
-                for var in self.variable_column_map.keys()
-                if not var.startswith(LPConstraint.SLACK_VAR_TAG)
-            ]
-        )
+        num_decision_vars = len(self.decision_vars())
         while not all(self.tableau[-1, :num_decision_vars] >= 0):
             pivot = self.select_pivot()
             self.row_reduce_by_pivot(pivot)
@@ -230,5 +299,22 @@ class TwoPhaseSimplex:
             self.solve_two_phase()
         else:
             self.solve_single_phase()
+
+    # endregion
+
+    # ================================= Results =================================
+    # region Results
+
+    def solution_point(self) -> NDArray:
+        num_decision_vars = len(self.decision_vars())
+        point = np.zeros(num_decision_vars)
+        for col_idx in range(num_decision_vars):
+            col = self.tableau[:, col_idx]
+            # If column is all zeros except for one 1
+            if self.column_is_basic(col_idx):
+                # Set variable to the value in the rightmost column that corresponds
+                # to the position of the 1
+                point[col_idx] = self.tableau[:, -1][np.where(col == 1)]
+        return point
 
     # endregion
