@@ -194,7 +194,7 @@ class TwoPhaseSimplex:
         ratio_col = self.tableau[:-1, -1] / self.tableau[:-1, pivot_col]
         feasible_pivots = ratio_col[ratio_col > 0]
         if len(feasible_pivots) == 0:
-            raise ValueError("No feasible pivots")
+            raise ValueError("No feasible pivots, solution unbounded")
         pivot_row = np.where(ratio_col == min(feasible_pivots))[0][0]
         return pivot_row, pivot_col
 
