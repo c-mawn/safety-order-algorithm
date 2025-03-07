@@ -1,6 +1,11 @@
 # Safety Order Algorithm
+*Ian Lum, Charlie Mawn, Dominic Salmieri*
 
-## IP Problem
+## Background
+
+## How it works
+
+## Example Application
 
 ### Definitions
 - $o =$ OFACer index, each person in the performance
@@ -42,3 +47,19 @@ $$\text{min } Z=\sum_{o=1}^{O} \left(\sum_{r=1}^{R} \sum_{c=1}^{C} s_{orc} - \fr
 - Props aren't considered, so safety 5 is still filled for long props
 - Optimize for minimizing swaps
 - Include music master in optimization 
+
+
+## Setup
+
+For this project, we used [numpy](https://numpy.org/) when implementing our Linear and Integer programming solvers. We also tested our constraints using [PuLP](https://coin-or.github.io/pulp/).
+
+These packages are listed in [`requirements.txt`](./requirements.txt) and can be installed using `pip install -r requirements.txt`
+
+## Resources
+
+Listed here are the resources we used for this project:
+- [The Two-phase Simplex Method: An Example](https://www.youtube.com/watch?v=_wnqe5_CLU0) - Sergiy Butenko
+- [Simplex algorithm](https://en.wikipedia.org/wiki/Simplex_algorithm) - Wikipedia
+- [Branch and cut](https://en.wikipedia.org/wiki/Branch_and_cut) - Wikipedia
+- [Cutting-plane method](https://en.wikipedia.org/wiki/Cutting-plane_method) - Wikipedia
+- [Gomory Cuts and a little more](https://ocw.mit.edu/courses/15-053-optimization-methods-in-management-science-spring-2013/4717f89c50e91aaa455dbe9cb5a3e225_MIT15_053S13_tut11.pdf) - MIT OpenCourseWare
