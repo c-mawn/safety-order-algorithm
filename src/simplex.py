@@ -44,6 +44,11 @@ class SimplexSolver:
                 c = np.array([3, 2])
                 A = np.array([[1, -1]])
                 b = np.array([4])
+            case 5:
+                # Fractional solutions (for MILP testing)
+                c = np.array([1, 2])
+                A = np.array([[1, 5], [2, 1]])
+                b = np.array([14, 8])
             case _:
                 raise ValueError("No example at that number")
         return SimplexSolver(c, A, b)
@@ -66,11 +71,11 @@ class SimplexSolver:
         """
         Returns the pivot point for the current tableau
         """
-        pivot_col = np.argmin(self.tableau[-1, :-1])
-        pivot_row = np.argmin(self.tableau[:-1, -1] / self.tableau[:-1, pivot_col])
+        pivot_col = int(np.argmin(self.tableau[-1, :-1]))
+        pivot_row = int(np.argmin(self.tableau[:-1, -1] / self.tableau[:-1, pivot_col]))
         return pivot_row, pivot_col
 
-    def row_reduce_by_pivot(self, pivot: tuple[int, int]) -> NDArray:
+    def row_reduce_by_pivot(self, pivot: tuple[int, int]) -> None:
         """
         Updates the current tableau via row reduction, reducing the pivot row
         such that the pivot is equal to 1, and reducing other rows such that
@@ -88,6 +93,12 @@ class SimplexSolver:
                 self.tableau[row_idx, pivot_col] * self.tableau[pivot_row, :]
             )
 
+    def basic_columns(self) -> NDArray:
+        """
+        Returns a boolean numpy array for which variables are basic
+        """
+        return np.array([np.count_nonzero(self.tableau[:, c]) == 1 and sum(self.tableau[:, c]) == 1 for c in range(self.tableau.shape[1] - 1)])
+
     def solution_point(self) -> NDArray:
         """
         Returns a numpy array containing the values of the variables and slack
@@ -95,13 +106,9 @@ class SimplexSolver:
         one 1
         """
         point = np.zeros(self.tableau.shape[1] - 1)
-        for col_idx in range(len(point)):
-            col = self.tableau[:, col_idx]
-            # If column is all zeros except for one 1
-            if np.count_nonzero(col) == 1 and sum(col) == 1:
-                # Set variable to the value in the rightmost column that corresponds
-                # to the position of the 1
-                point[col_idx] = self.tableau[:, -1][np.where(col == 1)]
+        for col_idx, basic in enumerate(self.basic_columns()):
+            if basic:
+                point[col_idx] = self.tableau[:, -1][np.where(self.tableau[:, col_idx] == 1)]
         return point
 
     def solve(self):
@@ -114,8 +121,10 @@ class SimplexSolver:
             pivot = self.select_pivot()
             self.row_reduce_by_pivot(pivot)
 
-
-s = SimplexSolver.example(1)
-s.solve()
-print(s.tableau)
-print(s.solution_point())
+if __name__ == '__main__':
+    for i in range(1, 3):
+        s = SimplexSolver.example(i)
+        s.solve()
+        print(f'EXAMPLE {i}')
+        print(s.tableau)
+        print(s.solution_point())
