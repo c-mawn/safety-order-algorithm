@@ -315,6 +315,7 @@ Since our algorithm is very generic, it can be used for a wide range of problems
 - $S =$ safety binary, where $S_{orc}$ is $1$ when OFACer $o$ is safetying in performance $r$ in safety position $c$
 - $M =$ music master binary, where $M_{or}$ is $1$ when OFACer $o$ is the music master for performance $r$
 - $E =$ experienced binary, where $E_{o}$ is $1$ if OFACer $o$ is allowed to be safety 1 or 4
+- $W =$ swap binary, used to linearize swapping, where $W_{orc} = S_{orc} * S_{o(r+1)c}$
 
 ### Givens
 
@@ -322,6 +323,8 @@ Since our algorithm is very generic, it can be used for a wide range of problems
 - Music masters
 
 ### Constraints
+All safety slots need to have exactly 1 person
+$$\sum_{o=1}^{O} S_{orc} = 1, \forall \ r \in R, \forall \ c \in [1, 5]$$
 
 Only one role per person per row
 
@@ -339,11 +342,17 @@ $$S_{or4} \le E_{o}, \forall \ r \in R, \forall \ o \in O$$
 
 At least two safeties must stay the same between performances
 
-$$\sum_{o=1}^{O} \sum_{c=1}^{C} S_{orc} * S_{o(r+1)c} \ge 2, \forall \ r \in R$$
+$$W_{orc} \le S_{orc}, $$
+$$W_{orc} \le S_{o(r+1)c}, $$
+$$W_{orc} \ge S_{orc} + S_{o(r+1)c} - 1,$$
+$$ \forall \ o \in O, \forall \ r \in R, \forall \ c \in [1, 5]$$
+
+$$\sum_{o=1}^{O} \sum_{c=1}^{5} W_{orc} \ge 2, \forall \ r \in R$$
 
 ### Optimization
+$$\Delta \ge \sum_{r=1}^{R} \sum_{c=1}^{5} s_{orc} - \frac{5|R|}{|O|} \ge -\Delta, \forall \ o \in O$$
+$$\text{min } Z=\Delta$$
 
-$$\text{min } Z=\sum_{o=1}^{O} \left(\sum_{r=1}^{R} \sum_{c=1}^{C} s_{orc} - \frac{5|R|}{|O|}\right)^2$$
 
 ### Current limitations and possible improvements
 
