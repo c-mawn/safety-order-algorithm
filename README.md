@@ -13,11 +13,15 @@ The Simplex is an algorithm used for linear programming—the optimization of an
 ### Simplex
 
 The Simplex algorithm finds the maximum value of a linear objective function given any number of linear constraints. For example:
+
 $$ \text{Maximize: } Z = 2x_1 + x_2 $$
+
 Subject to:
+
 $$ x_1 + 2x_2 \leq 5 $$
 $$ x_1 + x_2 \geq 3 $$
 $$ x_1 - x_2 = 2 $$
+
 Simplex does so by:
 
 1. Converting the constraints into standard form
@@ -32,24 +36,27 @@ Simplex does so by:
 The first step of the Simplex algorithm is to rewrite constraints in standard form. Standard form means that inequalities are turned into equal signs by adding **slack variables**. Slack variables represent the amount that the LHS of an inequality is off from the RHS.
 
 Take the following constraints for example:
+
 $$ x_1 + 2x_2 \leq 5 $$
 $$ x_1 + x_2 \geq 3 $$
 $$ x_1 - x_2 = 2 $$
 
 Adding slack variables to turn the inequalities into equalities:
+
 $$ x_1 + 2x_2 + s_1 = 5 $$
 $$ x_1 + x_2 - s_2 = 3 $$
 $$ x_1 - x_2 = 2 $$
 
-_Because all variables, including slack variables are non-negative, for there to a feasible answer to $ x_1 + 2x_2 + s_1 = 5 $, the inequality $ x_1 + 2x_2 \leq 5 $ will be satisfied._
+_Because all variables, including slack variables are non-negative, for there to a feasible answer to $` x_1 + 2x_2 + s_1 = 5 `$, the inequality $` x_1 + 2x_2 \leq 5 `$ will be satisfied._
 
 Then, each equation needs to have a **basic** variable. Basic variables are variables that have a coefficient of positive one, not including the original variables that are being optimized. For $\leq$ equations, the slack variable serves this purpose but for = and $\geq$ equations, we add **artificial variables**.
 
 Adding artificial variables to the equations:
+
 $$ x_1 + x_2 - s_2 + a_2 = 3 $$
 $$ x_1 - x_2 + a_3 = 2 $$
 
-_The equation $ x_1 + 2x_2 + s_1 = 5 $ does not need an artificial variable as it already has a basic variable, $s_1$._
+_The equation $` x_1 + 2x_2 + s_1 = 5 `$ does not need an artificial variable as it already has a basic variable, $`s_1`$._
 
 #### Tableau
 
@@ -58,12 +65,16 @@ The tableau is a matrix representation of the standard form equations. The table
 ##### No Artificial Variables
 
 Given the following problem:
+
 $$ \text{Maximize: } Z = 2x_1 + x_2 $$
+
 Subject to:
+
 $$ x_1 + 2x_2 \leq 5 $$
 $$ 4x_1 + x_2 \leq 6 $$
 
 Standard form:
+
 $$ x_1 + 2x_2 + s_1 = 5 $$
 $$ 4x_1 + x_2 + s_2 = 6 $$
 
@@ -85,6 +96,7 @@ Next, the objective function is added like so:
 | Z    | -2  | -1  | 0   | 0   | 0   |
 
 Note that the coefficients of the objective function are negative. This is because the objective function is rewritted so all variables are on the LHS, like so:
+
 $$ Z = 2x_1 + x_2 $$
 $$ Z - 2x_1 - x_2 = 0 $$
 
@@ -103,12 +115,16 @@ This tableau is now ready to run through the Simplex algorithm, and it can skip 
 ##### With Artificial Variables
 
 Given the following problem:
+
 $$ \text{Maximize: } Z = 2x_1 + x_2 $$
+
 Subject to:
+
 $$ x_1 + 2x_2 \leq 5 $$
 $$ x_1 + x_2 \geq 3 $$
 
 Standard form:
+
 $$ x_1 + 2x_2 + s_1 = 5 $$
 $$ x_1 + x_2 - s_2 + a_2 = 3 $$
 
@@ -122,10 +138,15 @@ Constraints are inserted into the tableau the same as above:
 Note that the artificial variable $a_2$ is the basic variable for the second row. If an artificial variable was not added, the second row would have no basic variable.
 
 The first phase of the Simplex algorithm is to remove artificial variables. This is done by setting $Z$ to minimize the sum of the artificial variables:
+
 $$ \text{Minimize: } Z = a_2 $$
+
 This can be rewritten in to the following maximization problem:
+
 $$ \text{Maximize: } Z = -a_2 $$
+
 Bringing all variables to the LHS:
+
 $$ Z + a_2 = 0 $$
 
 Added to the tableau:
@@ -136,7 +157,7 @@ Added to the tableau:
 |      | 1   | 1   | 0   | -1  | 1   | 3   |
 | Z    | 0   | 0   | 0   | 0   | 1   | 0   |
 
-However, $a_2$ is no longer a basic variable as it has a 1 in the $Z$ row. To reconcile this we perform a row operation, subtracting the second row from the $Z$ row:
+However, $`a_2`$ is no longer a basic variable as it has a 1 in the $Z$ row. To reconcile this we perform a row operation, subtracting the second row from the $Z$ row:
 
 | Base | x1  | x2  | s1  | s2  | a2  | RHS |
 | ---- | --- | --- | --- | --- | --- | --- |
@@ -226,13 +247,16 @@ All of the elements of the $Z$ are non-negative, completing phase 2.
 #### Results
 
 Two extract final variable values from the tableau, we look at the base variable column. The variables in the column are equal to the corresponding RHS value. For our example:
+
 $$ s_2 = 2 $$
 $$ x_1 = 5 $$
+
 All other variables are zero.
 
-Our final objective value is the bottom right most value, in this example, $Z = 10$.
+Our final objective value is the bottom right most value, in this example, $`Z = 10`$.
 
 Thus, we get our final result for our optimization problem:
+
 $$ x_1 = 5, x_2 = 0, Z = 10 $$
 
 ## Example Application
