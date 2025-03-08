@@ -4,6 +4,10 @@ _Ian Lum, Charlie Mawn, Dominic Salmieri_
 
 ## Background
 
+### Simplex
+
+The Simplex is an algorithm used for linear programming—the optimization of an objective function given various inequality constraints. Simplex is the most common algorithm for linear programming, solving problems by moving from vertex to vertex in the solution space. The algorithm was invented by George Dantzig, a US Army Air Force logistics planner, in 1946. Dantzig formulated his problems as linear inequalities, then realized the importance of introducing an objective function, adding the notion of a best solution amongst the many feasible solutions.
+
 ## How it works
 
 ### Simplex
