@@ -142,6 +142,95 @@ However, $a_2$ is no longer a basic variable as it has a 1 in the $Z$ row. To re
 
 This tableau is now ready for the first phase.
 
+#### Phase 1
+
+In order to maximize a tableau the following steps are performed:
+
+1. Select the most negative coefficient in the $Z$ row, this is the **pivot column**
+2. Calculate the ratio between RHS and the pivot column, by dividing the RHS by the pivot column. The element that results in smallest positive ratio is selected as the **pivot**, and its row is the **pivot row**.
+3. Divide the pivot row by the pivot element, so the pivot element is 1.
+4. Subtract other rows by the pivot row until all other elements in the pivot column are 0.
+5. Repeat until a given stop condition.
+
+For our example:
+
+| Base | x1      | x2  | s1  | s2  | a2  | RHS |
+| ---- | ------- | --- | --- | --- | --- | --- |
+| s1   | 1       | 2   | 1   | 0   | 0   | 5   |
+| a2   | **_1_** | 1   | 0   | -1  | 1   | 3   |
+| Z    | -1      | -1  | 0   | 1   | 0   | 0   |
+
+The smallest negative values in the $Z$ row are the two -1s, so the first one, the $x_1$ column is selected as the pivot column. The ratios are calculated as follows:
+
+- Base $s_1$ row: $5/1 = 5$
+- Base $a_2$ row: $3/1 = 3$
+
+The smallest positive ratio is 3, so the $a_2$ row is selected as the pivot row. The pivot element is already 1, so no row division needs to be performed.
+
+The pivot row is subtracted from the first row, and added to the $Z$ row, making all other values in the pivot column 0:
+
+| Base | x1  | x2  | s1  | s2  | a2  | RHS |
+| ---- | --- | --- | --- | --- | --- | --- |
+| s1   | 0   | 1   | 1   | 1   | -1  | 2   |
+| x1   | 1   | 1   | 0   | -1  | 1   | 3   |
+| Z    | 0   | 0   | 0   | 0   | 1   | 3   |
+
+Phase 1 ends when none of the artificial variables are basis variables, which is the case here. The tableau now needs to prepare for phase 2.
+
+#### Post Phase 1 Preparation
+
+The artificial variables are removed from the tableau, and the objective function is reset to the original maximization problem. Remember from the No Artificial Variables section of Tableau setup that the objective function coefficients are negative:
+
+| Base | x1  | x2  | s1  | s2  | RHS |
+| ---- | --- | --- | --- | --- | --- |
+| s1   | 0   | 1   | 1   | 1   | 2   |
+|      | 1   | 1   | 0   | -1  | 3   |
+| Z    | -2  | -1  | 0   | 0   | 0   |
+
+Note that adding the objective function has made $x_1$ no longer a basis. This is solved by pivoting on the 1 element of the $x_1$ column:
+
+| Base | x1  | x2  | s1  | s2  | RHS |
+| ---- | --- | --- | --- | --- | --- |
+| s1   | 0   | 1   | 1   | 1   | 2   |
+| x1   | 1   | 1   | 0   | -1  | 3   |
+| Z    | 0   | 1   | 0   | -2  | 6   |
+
+The tableau is now ready for phase 2.
+
+#### Phase 2
+
+Phase 2 repeats the same pivoting process as phase 1, but with the objective function coefficients. This is repeaded until all values in the $Z$ row are non-negative.
+
+For our example:
+
+| Base | x1  | x2  | s1  | s2  | RHS |
+| ---- | --- | --- | --- | --- | --- |
+| s1   | 0   | 1   | 1   | 1   | 2   |
+| x1   | 1   | 1   | 0   | -1  | 3   |
+| Z    | 0   | 1   | 0   | -2  | 6   |
+
+The pivot column is the $s_2$ column, and the $s_1$ basis row is the only row with a positive ratio. Pivoting on the 1 element of the $s_2$ column:
+
+| Base | x1  | x2  | s1  | s2  | RHS |
+| ---- | --- | --- | --- | --- | --- |
+| s2   | 0   | 1   | 1   | 1   | 2   |
+| x1   | 1   | 2   | 0   | 0   | 5   |
+| Z    | 0   | 3   | 2   | 0   | 10  |
+
+All of the elements of the $Z$ are non-negative, completing phase 2.
+
+#### Results
+
+Two extract final variable values from the tableau, we look at the base variable column. The variables in the column are equal to the corresponding RHS value. For our example:
+$$ s_2 = 2 $$
+$$ x_1 = 5 $$
+All other variables are zero.
+
+Our final objective value is the bottom right most value, in this example, $Z = 10$.
+
+Thus, we get our final result for our optimization problem:
+$$ x_1 = 5, x_2 = 0, Z = 10 $$
+
 ## Example Application
 
 ### Definitions
